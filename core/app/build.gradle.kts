@@ -83,7 +83,7 @@ desugaring {
 }
 
 dependencies {
-  debugImplementation(libs.common.leakcanary)
+//  debugImplementation(libs.common.leakcanary) // LeakCanary disabled temporarily
 
   // Annotation processors
   kapt(libs.common.glide.ap)
