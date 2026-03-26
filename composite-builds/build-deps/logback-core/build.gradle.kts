@@ -42,7 +42,7 @@ dependencies {
     compileOnly("org.codehaus.janino:commons-compiler:+")
     compileOnly("org.fusesource.jansi:jansi:+")
     compileOnly("jakarta.mail:jakarta.mail-api:+")
-    compileOnly("jakarta.servlet:jakarta.servlet-api:+")
+    compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0")
 
     testCompileOnly("org.eclipse.angus:angus-mail:+")
     testCompileOnly("org.mockito:mockito-core:+")
