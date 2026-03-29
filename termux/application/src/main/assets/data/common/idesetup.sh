@@ -13,10 +13,10 @@ yes='^[Yy][Ee]?[Ss]?$'
 # Defualt values
 arch=$(uname -m)
 install_dir=$HOME
-sdkver_org=34.0.4
+sdkver_org=35.0.2
 with_cmdline=true
 assume_yes=false
-manifest="https://raw.githubusercontent.com/AndroidIDEOfficial/androidide-tools/main/manifest.json"
+manifest="https://raw.githubusercontent.com/git-jr/androidide-tools/main/manifest.json"
 pkgm="pkg"
 pkg_curl="libcurl"
 pkgs="jq tar"
