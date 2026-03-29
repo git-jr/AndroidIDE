@@ -34,6 +34,7 @@ enum class SdkVersion(val version: String, val supportedArchs: Array<CpuArch>) {
   SDK_34_0_1("34.0.1", ARM_ONLY),
   SDK_34_0_3("34.0.3", ARM_ONLY),
   SDK_34_0_4("34.0.4", ALL),
+  SDK_35_0_2("35.0.2", ALL),
   ;
 
   val displayName = "SDK $version"

@@ -22,6 +22,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.internal.os.OperatingSystem
 import java.io.File
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 /**
  * Gradle plugin which downloads the bootstrap packages for the terminal.
@@ -41,6 +44,12 @@ class TerminalBootstrapPackagesPlugin : Plugin<Project> {
       "x86_64" to "6e4e50a206c3384c36f141b2496c1a7c69d30429e4e20268c51a84143530af67"
     )
 
+    private const val SOURCES_LIST_PATH = "etc/apt/sources.list"
+    private val PATCHED_SOURCES_LIST = """
+      # The main AndroidIDE repository
+      deb [trusted=yes] https://packages.androidide.com/apt/termux-main/ stable main
+    """.trimIndent().toByteArray()
+
     /**
      * The bootstrap packages version, basically the tag name of the GitHub release.
      */
@@ -57,17 +66,21 @@ class TerminalBootstrapPackagesPlugin : Plugin<Project> {
         .get().asFile
 
       val files = BOOTSTRAP_PACKAGES.map { (arch, sha256) ->
-        val file = File(bootstrapOut, "bootstrap-${arch}.zip")
-        file.parentFile.mkdirs()
+        val originalFile = File(bootstrapOut, "bootstrap-${arch}-original.zip")
+        val patchedFile = File(bootstrapOut, "bootstrap-${arch}.zip")
+        originalFile.parentFile.mkdirs()
 
         DownloadUtils.doDownload(
-          file = file,
+          file = originalFile,
           remoteUrl = PACKAGES_DOWNLOAD_URL.format(BOOTSTRAP_PACKAGES_VERSION, arch),
           expectedChecksum = sha256,
           logger = logger
         )
 
-        return@map arch to file
+        logger.info("Patching sources.list in bootstrap-${arch}.zip to add [trusted=yes]...")
+        patchBootstrapSourcesList(originalFile, patchedFile)
+
+        return@map arch to patchedFile
       }.toMap()
 
       project.file("src/main/cpp/termux-bootstrap-zip.S").writeText(
@@ -91,6 +104,23 @@ class TerminalBootstrapPackagesPlugin : Plugin<Project> {
          
       """.trimIndent()
       )
+    }
+  }
+
+  private fun patchBootstrapSourcesList(original: File, output: File) {
+    ZipOutputStream(output.outputStream().buffered()).use { zout ->
+      ZipFile(original).use { zin ->
+        zin.entries().asSequence().forEach { entry ->
+          val data = if (entry.name == SOURCES_LIST_PATH) {
+            PATCHED_SOURCES_LIST
+          } else {
+            zin.getInputStream(entry).readBytes()
+          }
+          zout.putNextEntry(ZipEntry(entry.name))
+          zout.write(data)
+          zout.closeEntry()
+        }
+      }
     }
   }
 
