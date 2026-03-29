@@ -165,8 +165,10 @@ data class ProjectVersionData(val gradlePlugin: String = ANDROID_GRADLE_PLUGIN_V
  * @property targetSdk The target SDK version for modules.
  * @property buildTools The build tools version for modules.
  */
-data class ModuleVersionData(val minSdk: Sdk, val targetSdk: Sdk = TARGET_SDK_VERSION,
-  val compileSdk: Sdk = COMPILE_SDK_VERSION, val javaSource: String = JAVA_SOURCE_VERSION,
+data class ModuleVersionData(val minSdk: Sdk,
+  val targetSdk: Sdk = if (minSdk.api > TARGET_SDK_VERSION.api) minSdk else TARGET_SDK_VERSION,
+  val compileSdk: Sdk = if (minSdk.api > COMPILE_SDK_VERSION.api) minSdk else COMPILE_SDK_VERSION,
+  val javaSource: String = JAVA_SOURCE_VERSION,
   val javaTarget: String = JAVA_TARGET_VERSION) {
 
   /**
